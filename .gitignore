@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+venv/
+.venv/
+env/
+
+# downloaded/cached datasets
+scikit_learn_data/
+*.npz
+
+# training outputs
+outputs/checkpoints/
+outputs/plots/
+*.png
+!docs/*.png
+
+# editor
+.vscode/
+.idea/
