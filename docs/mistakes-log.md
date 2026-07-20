@@ -157,7 +157,89 @@ pass, Ex 7) has nowhere sensible to live if `relu` itself is nested and
 inaccessible elsewhere. Moved `relu`, `relu_derivative`, and `softmax` to
 module level, matching the rest of the codebase's structure.
 
+### 10. Missing 1/m batch averaging in the backward pass
+
+```python
+# before
+delta2 = cache["A2"] - y
+```
+
+`m` was computed (`m = X.shape[0]`) but never used anywhere. Since every
+downstream gradient (`dW2`, `db2`, `dA1`, `delta1`, `dW1`, `db1`) is linear
+in `delta2`, this meant every returned gradient was `m` times larger than
+it should be for a batch-averaged loss — a silent scaling bug that passes
+every shape assertion (since shape doesn't depend on scale) and would only
+surface as unstable/diverging training, far downstream of the actual bug.
+
+**Fix:** divide once, at the source, and let it propagate:
+```python
+delta2 = (cache["A2"] - y) / m
+```
+
+### 11. `dA1` used the wrong layer's weights
+
+```python
+# before
+dA1 = delta2 @ params["W1"].T
+```
+
+`dA1` (gradient flowing back into layer 1's *output*) must flow through
+the weights connecting layer 1 to layer 2 — i.e. `W2` — not `W1`. `W1.T`
+has shape `(128, 784)`, which isn't even multiplicable against `delta2`
+`(m, 10)`, so this would have raised a shape-mismatch error immediately
+on the first run with real biases (it happened to not crash only because
+an earlier draft coincidentally hadn't been run against real shapes yet).
+
+**Fix:**
+```python
+dA1 = delta2 @ params["W2"].T   # (m,10) @ (10,128) -> (m,128), matches A1
+```
+
+### 12. `db2`/`db1` summed the wrong array and wrong axis
+
+```python
+# before
+db2 = np.sum(params["b2"], axis=1, keepdims=True)
+```
+
+Two separate mistakes stacked: summing `params["b2"]` (the bias itself)
+instead of `delta2` (the error signal), and summing `axis=1` (across the
+10 output neurons) instead of `axis=0` (across the batch). `db` must be
+the column-sum of `delta` — collapsing the *batch* axis, leaving one value
+per neuron.
+
+**Fix:**
+```python
+db2 = np.sum(delta2, axis=0, keepdims=True)
+```
+
+### 13. `relu_derivative` silently upcast gradients to float64
+
+```python
+# before
+def relu_derivative(z):
+    return np.where(z > 0, 1, 0)
+```
+
+`np.where(cond, 1, 0)` uses plain Python ints, which NumPy defaults to an
+integer dtype (not float32). Multiplying `dA1 (float32) * relu_derivative(Z1) (int)`
+triggers NumPy's type-promotion rules, upcasting the result to float64.
+Every gradient built from that point on (`delta1`, `dW1`, `db1`) silently
+inherited float64, while `dW2`/`db2` (which never touch `relu_derivative`)
+stayed float32 — a real, easy-to-miss dtype inconsistency across the
+gradient dict, only caught by explicitly printing `.dtype` on every array.
+
+**Fix:** derive the dtype from the input instead of hardcoding one:
+```python
+def relu_derivative(z):
+    return (z > 0).astype(z.dtype)
+```
+
+The final `__main__` block in `model.py` now asserts every array in
+`params`, `cache`, and `grads` is float32, specifically to catch this
+class of bug automatically going forward.
+
 ---
 
-*(This file will grow as later exercises — backprop, training loop,
+*(This file will grow as later exercises — training loop,
 evaluation — surface their own bugs.)*

@@ -100,11 +100,11 @@ state of this repo.
 | 2 | Forward pass, layer 1 (Linear + ReLU) | `model.py::forward` | ✅ done |
 | 3 | Forward pass, layer 2 (Linear + softmax) | `model.py::forward` | ✅ done |
 | 4 | Cross-entropy loss | `losses.py::cross_entropy_loss` | ⬜ next |
-| 5 | delta2 = A2 - Y (softmax + CE backward) | `model.py::backward` | ⬜ |
-| 6 | dW2, db2 | `model.py::backward` | ⬜ |
-| 7 | dA1 -> delta1 (via relu_derivative) | `model.py::backward` | ⬜ |
-| 8 | dW1, db1 | `model.py::backward` | ⬜ |
-| 9 | Parameter update / train_step | `train.py::train_step` | ⬜ |
+| 5 | delta2 = A2 - Y (softmax + CE backward) | `model.py::backward` | ✅ done |
+| 6 | dW2, db2 | `model.py::backward` | ✅ done |
+| 7 | dA1 -> delta1 (via relu_derivative) | `model.py::backward` | ✅ done |
+| 8 | dW1, db1 | `model.py::backward` | ✅ done |
+| 9 | Parameter update / train_step | `train.py::train_step` | ⬜ next |
 | 10 | Training loop | `train.py::train` | ⬜ |
 | 11 | Test accuracy | `evaluate.py::accuracy` | ⬜ |
 | 12 | Track per-epoch loss/accuracy | `train.py::train` | ⬜ |

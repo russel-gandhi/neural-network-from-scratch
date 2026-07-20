@@ -6,7 +6,7 @@
 
 import numpy as np
 import pytest
-from mnist_nn.model import init_parameters, forward_pass
+from mnist_nn.model import init_parameters, forward_pass, backward_pass
 
 
 def test_init_params_shapes():
@@ -36,13 +36,13 @@ def test_forward_pass_output_shape():
     assert np.allclose(cache["A2"].sum(axis=1), 1.0, atol=1e-5)
 
 
-# def test_backward_gradient_shapes():
-#     params = init_parameters()
-#     X = np.random.randn(32, 784).astype(np.float32)
-#     Y = np.eye(10, dtype=np.float32)[np.random.randint(0, 10, size=32)]
-#     cache = forward_pass(X, params)
-#     grads = backward(X, Y, params, cache)
-#     assert grads["dW1"].shape == params["W1"].shape
-#     assert grads["db1"].shape == params["b1"].shape
-#     assert grads["dW2"].shape == params["W2"].shape
-#     assert grads["db2"].shape == params["b2"].shape
+def test_backward_pass_gradient_shapes():
+    params = init_parameters()
+    X = np.random.randn(32, 784).astype(np.float32)
+    Y = np.eye(10, dtype=np.float32)[np.random.randint(0, 10, size=32)]
+    cache = forward_pass(X, params)
+    grads = backward_pass(X, Y, params, cache)
+    assert grads["dW1"].shape == params["W1"].shape
+    assert grads["db1"].shape == params["b1"].shape
+    assert grads["dW2"].shape == params["W2"].shape
+    assert grads["db2"].shape == params["b2"].shape
