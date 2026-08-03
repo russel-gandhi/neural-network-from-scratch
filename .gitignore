@@ -1,21 +1,23 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
-.ipynb_checkpoints/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Virtual environments
 venv/
 .venv/
-env/
 
-# downloaded/cached datasets
-scikit_learn_data/
-*.npz
-
-# training outputs
-outputs/checkpoints/
-outputs/plots/
-*.png
-!docs/*.png
-
-# editor
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Project-specific
+outputs/
+*.npz
+.env

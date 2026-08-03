@@ -35,7 +35,7 @@ def forward_pass(X : np.ndarray, params : dict[str, np.ndarray]) -> dict[str, np
     
     return {"Z1": Z1, "A1": A1, "Z2": Z2, "A2": A2}
 
-def backward_pass(X: np.ndarray, y: np.ndarray, params: dict[str, np.ndarray], cache: dict[np.ndarray]) -> dict[np.ndarray]:
+def backward_pass(X: np.ndarray, y: np.ndarray, params: dict[str, np.ndarray], cache: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
     m = X.shape[0]
     
     delta2 = (cache["A2"] - y) / m

@@ -1,4 +1,5 @@
 import numpy as np
+from mnist_nn.model import init_parameters, forward_pass
 
 def cross_entropy_loss(y: np.ndarray, A_L: np.ndarray) -> np.float32:
     eps = np.finfo(A_L.dtype).eps
@@ -10,7 +11,6 @@ def cross_entropy_loss(y: np.ndarray, A_L: np.ndarray) -> np.float32:
     
 if __name__ == "__main__":
 
-    from model import init_parameters, forward_pass
     
     params = init_parameters()
     X = np.random.randn(32, 784).astype(np.float32)
