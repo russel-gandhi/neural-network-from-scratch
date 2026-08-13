@@ -171,3 +171,63 @@ with `requires_grad=True`, calls `.backward()`, and asserts the resulting
 `.grad` tensors match the NumPy gradients computed above to within
 numerical tolerance — an independent, automated verification that this
 derivation is implemented correctly.
+
+## Training loop
+
+Mini-batch stochastic gradient descent (SGD). One epoch:
+
+1. Shuffle `X_train` and `Y_train` together using the same permutation index,
+   keeping every image paired with its correct label.
+2. Slice into batches of size `m`. The final batch may be smaller — NumPy
+   slicing handles this safely without special-casing.
+3. For each batch: forward pass -> loss -> backward pass -> SGD update.
+4. Accumulate batch losses and average for the epoch loss reported.
+
+The SGD update for each parameter `p` with gradient `g` and learning rate `lr`:
+
+```
+p <- p - lr * g
+```
+
+Applied to all four parameters (`W1`, `b1`, `W2`, `b2`) each step.
+`train_step` returns a new dict rather than mutating in place — the caller
+must assign the returned dict back to `params` for updates to carry across
+batches.
+
+### Why shuffle every epoch
+
+Shuffling once before all epochs means every epoch sees batches in the same
+order. The optimizer can exploit correlations in the fixed ordering (certain
+classes consistently co-occurring in early batches) rather than learning the
+true signal. Re-shuffling each epoch ensures every batch composition is
+independent across epochs, which is the assumption SGD theory relies on.
+
+### Why 1/m in the gradient but not in the loss-reported value
+
+The backward pass divides by `m` (batch size) so the gradient scale is
+independent of batch size — a learning rate tuned on batch size 16 would be
+too aggressive on batch size 128 if the gradient weren't normalized.
+The loss reported per batch is also averaged over `m` (via `cross_entropy_loss`)
+so the epoch loss is on the same scale regardless of batch size, making it
+comparable across hyperparameter sweeps.
+
+## Evaluation
+
+After training, prediction on a new example `x`:
+
+```
+cache = forward_pass(x, params)
+predicted_class = argmax(cache["A2"], axis=1)
+```
+
+`argmax` is applied only at prediction time, not during training — the full
+probability vector `A2` must remain available during backprop for `delta2 = A2 - Y`.
+
+Accuracy over a test set:
+
+```
+accuracy = mean(predicted_classes == true_integer_labels)
+```
+
+`true_integer_labels` are kept as integers (not one-hot encoded), since
+argmax and integer comparison is all accuracy computation needs.

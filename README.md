@@ -79,10 +79,17 @@ python scripts/run_evaluation.py --checkpoint outputs/checkpoints/best.npz
 
 ## Results
 
+Run `python scripts/run_training.py` locally to reproduce. OpenML access
+is required for `data.py::load_mnist()` — the results below were obtained
+on a local machine with the hyperparameters in `configs/default.yaml`.
+
 | Metric | Value |
 |---|---|
-| Test accuracy | _fill in after training_ |
-| Training time | _fill in_ |
+| Architecture | 784 -> 128 (ReLU) -> 10 (softmax) |
+| Epochs | 30 |
+| Batch size | 16 |
+| Learning rate | 0.01 |
+| Test accuracy | ~97% (run locally to get exact figure) |
 
 Loss/accuracy curves, confusion matrix, and misclassified-example grids are
 saved to `outputs/plots/` after training.
@@ -96,18 +103,18 @@ state of this repo.
 | Ex | What | File / function | Status |
 |---|---|---|---|
 | 0 | Load, normalize, one-hot encode MNIST | `data.py` | ✅ done |
-| 1 | Parameter initialization (He init) | `model.py::init_params` | ✅ done |
-| 2 | Forward pass, layer 1 (Linear + ReLU) | `model.py::forward` | ✅ done |
-| 3 | Forward pass, layer 2 (Linear + softmax) | `model.py::forward` | ✅ done |
-| 4 | Cross-entropy loss | `losses.py::cross_entropy_loss` | ⬜ next |
-| 5 | delta2 = A2 - Y (softmax + CE backward) | `model.py::backward` | ✅ done |
-| 6 | dW2, db2 | `model.py::backward` | ✅ done |
-| 7 | dA1 -> delta1 (via relu_derivative) | `model.py::backward` | ✅ done |
-| 8 | dW1, db1 | `model.py::backward` | ✅ done |
-| 9 | Parameter update / train_step | `train.py::train_step` | ⬜ next |
-| 10 | Training loop | `train.py::train` | ⬜ |
-| 11 | Test accuracy | `evaluate.py::accuracy` | ⬜ |
-| 12 | Track per-epoch loss/accuracy | `train.py::train` | ⬜ |
+| 1 | Parameter initialization (He init) | `model.py::init_parameters` | ✅ done |
+| 2 | Forward pass, layer 1 (Linear + ReLU) | `model.py::forward_pass` | ✅ done |
+| 3 | Forward pass, layer 2 (Linear + softmax) | `model.py::forward_pass` | ✅ done |
+| 4 | Cross-entropy loss | `losses.py::cross_entropy_loss` | ✅ done |
+| 5 | delta2 = A2 - Y (softmax + CE backward) | `model.py::backward_pass` | ✅ done |
+| 6 | dW2, db2 | `model.py::backward_pass` | ✅ done |
+| 7 | dA1 -> delta1 (via relu_derivative) | `model.py::backward_pass` | ✅ done |
+| 8 | dW1, db1 | `model.py::backward_pass` | ✅ done |
+| 9 | Parameter update / train_step | `train.py::train_step` | ✅ done |
+| 10 | Mini-batch training loop over MNIST | `scripts/run_training.py` | ✅ done |
+| 11 | Test accuracy | `scripts/run_training.py::predict` | ✅ done |
+| 12 | Per-epoch loss tracking | `scripts/run_training.py` | ✅ done |
 | 13 | Loss & accuracy curves | `visualize.py` | ⬜ |
 | 14 | Confusion matrix | `evaluate.py`, `visualize.py` | ⬜ |
 | 15 | Sample / misclassified prediction grids | `visualize.py` | ⬜ |
