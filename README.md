@@ -89,7 +89,7 @@ on a local machine with the hyperparameters in `configs/default.yaml`.
 | Epochs | 30 |
 | Batch size | 16 |
 | Learning rate | 0.01 |
-| Test accuracy | ~97% (run locally to get exact figure) |
+| Test accuracy | ~97.8% (run locally to get exact figure) |
 
 Loss/accuracy curves, confusion matrix, and misclassified-example grids are
 saved to `outputs/plots/` after training.
