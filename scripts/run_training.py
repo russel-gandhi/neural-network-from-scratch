@@ -91,3 +91,20 @@ for i, ax in enumerate(axes.flat):
 
 plt.tight_layout()
 plt.show()
+
+
+wrong_indices = np.where(preds != y_test_class_indices)[0]
+
+fig, axes = plt.subplots(2, 5, figsize=(10, 5))
+
+for ax, index in zip(axes.flat, wrong_indices[:10]):
+    image = X_test[index].reshape(28, 28)
+
+    ax.imshow(image, cmap="gray")
+    ax.set_title(
+        f"P: {preds[index]} | A: {y_test_class_indices[index]}"
+    )
+    ax.axis("off")
+
+plt.tight_layout()
+plt.show()
